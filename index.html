@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exzap Pro — Repair Shop Cabinet (Demo)</title>
+  <style>
+    :root{
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --brand:#4f46e5;
+      --brand2:#3730a3;
+      --ok:#16a34a;
+      --warn:#d97706;
+      --info:#2563eb;
+      --danger:#dc2626;
+      --shadow: 0 12px 30px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text);}
+    a{color:inherit;text-decoration:none}
+    .topbar{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px; background:#fff; border-bottom:1px solid var(--line);
+    }
+    .logo{
+      display:flex; align-items:center; gap:10px; font-weight:800;
+      letter-spacing:.2px;
+    }
+    .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#22c55e); box-shadow:0 10px 20px rgba(79,70,229,.18)}
+    .pill{border:1px solid var(--line); background:#fff; padding:8px 10px; border-radius:999px; display:flex; align-items:center; gap:8px; color:var(--muted);}
+    .search{flex:1; min-width:220px;}
+    .search input{
+      width:100%; border:1px solid var(--line); background:#fff; border-radius:999px;
+      padding:10px 12px; outline:none;
+    }
+    .actions{display:flex; gap:10px; align-items:center;}
+    .btn{
+      border:none; background:var(--brand); color:#fff; padding:10px 12px; border-radius:12px;
+      font-weight:700; cursor:pointer;
+      box-shadow:0 10px 22px rgba(79,70,229,.22);
+    }
+    .btn.secondary{
+      background:#fff; color:var(--brand2); border:1px solid var(--line); box-shadow:none;
+    }
+    .layout{display:grid; grid-template-columns: 280px 1fr; gap:18px; padding:18px; max-width:1220px; margin:0 auto;}
+    .side{
+      position:sticky; top:76px; align-self:start;
+      background:#fff; border:1px solid var(--line); border-radius:18px; padding:12px;
+      box-shadow: var(--shadow);
+      height: calc(100vh - 110px);
+      overflow:auto;
+    }
+    .shopcard{padding:12px; border-radius:16px; background:linear-gradient(135deg,rgba(79,70,229,.08),rgba(34,197,94,.08)); border:1px solid rgba(79,70,229,.12);}
+    .shopname{font-weight:900; font-size:15px;}
+    .shopmeta{color:var(--muted); font-size:12px; margin-top:4px; display:flex; flex-wrap:wrap; gap:8px;}
+    .tag{font-size:11px; border:1px solid rgba(100,116,139,.25); color:var(--muted); padding:4px 8px; border-radius:999px; background:#fff;}
+    .nav{margin-top:10px;}
+    .nav a{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 10px; border-radius:12px; color:#0f172a; font-weight:650;
+      margin:4px 0;
+    }
+    .nav a small{color:var(--muted); font-weight:600}
+    .nav a.active, .nav a:hover{background:rgba(79,70,229,.08); color:var(--brand2);}
+    .badge{
+      margin-left:auto;
+      font-size:11px; font-weight:800;
+      padding:3px 9px; border-radius:999px;
+      border:1px solid var(--line); color:var(--muted); background:#fff;
+    }
+    .content{min-width:0;}
+    .grid{display:grid; grid-template-columns: repeat(12, 1fr); gap:14px;}
+    .card{
+      background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .h1{font-size:22px; font-weight:950; letter-spacing:-.2px; margin:6px 0 0;}
+    .sub{color:var(--muted); margin:6px 0 0; font-size:13px; line-height:1.4}
+    .kpi{display:flex; align-items:flex-end; justify-content:space-between; gap:10px;}
+    .kpi .label{color:var(--muted); font-weight:700; font-size:12px}
+    .kpi .val{font-size:22px; font-weight:950}
+    .kpi .delta{font-size:12px; font-weight:850; padding:3px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); background:#fff;}
+    .delta.ok{color:var(--ok); border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.06)}
+    .delta.warn{color:var(--warn); border-color:rgba(217,119,6,.25); background:rgba(217,119,6,.06)}
+    .delta.info{color:var(--info); border-color:rgba(37,99,235,.25); background:rgba(37,99,235,.06)}
+    .delta.bad{color:var(--danger); border-color:rgba(220,38,38,.25); background:rgba(220,38,38,.06)}
+
+    table{width:100%; border-collapse:collapse; margin-top:10px;}
+    th,td{padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; font-size:13px;}
+    th{color:var(--muted); font-weight:800; font-size:12px;}
+    .status{font-size:11px; font-weight:900; padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line);}
+    .s-ok{color:var(--ok); border-color:rgba(22,163,74,.22); background:rgba(22,163,74,.06)}
+    .s-warn{color:var(--warn); border-color:rgba(217,119,6,.22); background:rgba(217,119,6,.06)}
+    .s-info{color:var(--info); border-color:rgba(37,99,235,.22); background:rgba(37,99,235,.06)}
+    .s-bad{color:var(--danger); border-color:rgba(220,38,38,.22); background:rgba(220,38,38,.06)}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .chip{border:1px solid var(--line); background:#fff; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:750; color:var(--muted); cursor:pointer;}
+    .chip.active{border-color:rgba(79,70,229,.35); background:rgba(79,70,229,.06); color:var(--brand2);}
+    .split{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+    .right{margin-left:auto}
+    .muted{color:var(--muted)}
+    .link{color:var(--brand2); font-weight:850; cursor:pointer;}
+    .hr{height:1px; background:var(--line); margin:12px 0}
+    .two{display:grid; grid-template-columns: 1.2fr .8fr; gap:14px;}
+    .cta{display:flex; gap:10px; flex-wrap:wrap}
+    .cta .btn{padding:10px 14px}
+    .btn.ghost{background:#fff; color:var(--brand2); border:1px solid rgba(79,70,229,.25); box-shadow:none;}
+    .note{font-size:12px; color:var(--muted); line-height:1.45}
+    .drawer{
+      position:fixed; inset:0; background:rgba(15,23,42,.55); display:none; align-items:flex-end; justify-content:center; padding:18px; z-index:20;
+    }
+    .drawer .panel{
+      width:min(980px,100%);
+      background:#fff; border-radius:22px; border:1px solid var(--line);
+      box-shadow:0 30px 80px rgba(0,0,0,.25);
+      overflow:hidden;
+    }
+    .drawer .head{padding:14px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;}
+    .drawer .head h3{margin:0; font-size:14px; font-weight:950}
+    .drawer .body{padding:16px}
+    .x{margin-left:auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:8px 10px; cursor:pointer; font-weight:900; color:var(--muted);}
+    .form{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .field label{display:block; font-size:12px; color:var(--muted); font-weight:800; margin-bottom:6px}
+    .field input, .field select, .field textarea{
+      width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:12px; outline:none; font:inherit;
+      background:#fff;
+    }
+    .field textarea{min-height:90px; resize:vertical}
+    .form .wide{grid-column:1/-1}
+    .toast{
+      position:fixed; right:18px; bottom:18px; z-index:30;
+      background:#0f172a; color:#fff; padding:12px 14px; border-radius:14px;
+      box-shadow:0 18px 40px rgba(0,0,0,.25); display:none;
+      max-width:min(420px, calc(100vw - 36px));
+      font-size:13px;
+    }
+    .toast b{color:#fff}
+    @media (max-width: 980px){
+      .layout{grid-template-columns:1fr}
+      .side{position:relative; top:auto; height:auto}
+      .two{grid-template-columns:1fr}
+      .search{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">
+      <div class="mark"></div>
+      <div>
+        <div style="font-size:14px; font-weight:950;">Exzap Pro</div>
+        <div style="font-size:11px; color:var(--muted); font-weight:700; margin-top:1px;">Repair shop cabinet (business)</div>
+      </div>
+    </div>
+
+    <div class="pill"><span style="font-weight:900">City</span> Tashkent ▾</div>
+
+    <div class="search">
+      <input id="globalSearch" placeholder="Search parts, OE, VIN, invoice… (fake)" />
+    </div>
+
+    <div class="actions">
+      <button class="btn secondary" onclick="openDrawer('newOrder')">New order</button>
+      <button class="btn" onclick="openDrawer('invite')">Invite staff</button>
+      <div class="pill"><span style="font-weight:900">Wholesale</span> Tier B</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="side">
+      <div class="shopcard">
+        <div class="shopname">GARAGE MASTER LLC</div>
+        <div class="shopmeta">
+          <span class="tag">INN: 3090•••••</span>
+          <span class="tag">Contract: PRO-2026</span>
+          <span class="tag">Credit line: 20,000,000 UZS</span>
+        </div>
+      </div>
+
+      <div class="nav" id="nav">
+        <a href="#dashboard" data-route="dashboard" class="active">🏠 Dashboard <small>overview</small><span class="badge">5</span></a>
+        <a href="#orders" data-route="orders">🧾 Orders <small>procurement</small><span class="badge">12</span></a>
+        <a href="#quotes" data-route="quotes">📄 Quotes <small>price offers</small><span class="badge">3</span></a>
+        <a href="#returns" data-route="returns">↩️ Returns <small>RMA</small><span class="badge">1</span></a>
+        <a href="#clients" data-route="clients">👥 Customers <small>your clients</small></a>
+        <a href="#workorders" data-route="workorders">🛠️ Work Orders <small>jobs</small><span class="badge">7</span></a>
+        <a href="#fleet" data-route="fleet">🚗 Vehicles <small>garage</small></a>
+        <a href="#team" data-route="team">🧑‍🤝‍🧑 Team <small>roles</small><span class="badge">4</span></a>
+        <a href="#billing" data-route="billing">💳 Billing <small>invoices</small></a>
+        <a href="#bonus" data-route="bonus">🎁 Bonus / Terms <small>loyalty</small></a>
+        <a href="#settings" data-route="settings">⚙️ Settings <small>profile</small></a>
+      </div>
+
+      <div class="hr"></div>
+      <div class="note">
+        <b>Demo notes:</b> all links are fake, data is mock. Use for presentations.
+        <div style="margin-top:10px" class="cta">
+          <button class="btn ghost" onclick="openDrawer('support')">Support</button>
+          <button class="btn secondary" onclick="toast('Tip: Use “Quotes” for fast parts pricing before ordering.')">Presentation tip</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content" id="app"></section>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true">
+    <div class="panel">
+      <div class="head">
+        <h3 id="drawerTitle">Panel</h3>
+        <button class="x" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="body" id="drawerBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const fmtUZS = (n)=> n.toLocaleString('en-US') + ' UZS';
+const state = {
+  route: 'dashboard',
+  orders: [
+    {id:'PO-22193', date:'Jan 18, 2026', supplier:'Exzap Warehouse', total: 3450000, status:'Packed', s:'info'},
+    {id:'PO-22161', date:'Jan 15, 2026', supplier:'Partner A', total: 1290000, status:'Delivered', s:'ok'},
+    {id:'PO-22144', date:'Jan 13, 2026', supplier:'Exzap Warehouse', total: 780000, status:'Delivered', s:'ok'},
+    {id:'PO-22102', date:'Jan 09, 2026', supplier:'Partner B', total: 4980000, status:'Awaiting payment', s:'warn'},
+  ],
+  quotes: [
+    {id:'Q-8831', date:'Jan 19, 2026', items: 6, best: 'Exzap Warehouse', eta:'Today', margin:'18%'},
+    {id:'Q-8797', date:'Jan 17, 2026', items: 3, best: 'Partner A', eta:'1–2 days', margin:'22%'},
+    {id:'Q-8720', date:'Jan 12, 2026', items: 8, best: 'Partner C', eta:'3–5 days', margin:'15%'},
+  ],
+  returns: [
+    {id:'RMA-104', date:'Jan 16, 2026', order:'PO-22144', items:1, reason:'Wrong part', status:'In review', s:'info'}
+  ],
+  workorders: [
+    {id:'WO-5402', customer:'Akmal R.', vehicle:'Chevrolet Cobalt 2020', stage:'Waiting approval', s:'warn', est: 1320000},
+    {id:'WO-5396', customer:'Sardor K.', vehicle:'Hyundai Elantra 2017', stage:'In progress', s:'info', est: 2580000},
+    {id:'WO-5388', customer:'Dilnoza S.', vehicle:'Toyota Camry 2018', stage:'Ready', s:'ok', est: 890000},
+    {id:'WO-5374', customer:'Temur B.', vehicle:'Kia Rio 2016', stage:'Diagnostics', s:'info', est: 450000},
+  ],
+  team: [
+    {name:'Bekzod Karimov', role:'Owner', phone:'+998 90 000 00 01', perm:'All access'},
+    {name:'Nodira Y.', role:'Service advisor', phone:'+998 90 000 00 02', perm:'Work orders, quotes'},
+    {name:'Javlon A.', role:'Purchasing', phone:'+998 90 000 00 03', perm:'Orders, returns'},
+    {name:'Timur S.', role:'Accountant', phone:'+998 90 000 00 04', perm:'Billing only'},
+  ]
+};
+
+const el = (html)=> {
+  const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild;
+};
+
+function statusPill(label, s){
+  const cls = s==='ok'?'s-ok':s==='warn'?'s-warn':s==='bad'?'s-bad':'s-info';
+  return `<span class="status ${cls}">${label}</span>`;
+}
+
+function setActiveNav(route){
+  document.querySelectorAll('#nav a').forEach(a=>{
+    a.classList.toggle('active', a.dataset.route===route);
+  });
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.style.display='block';
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.style.display='none', 2600);
+}
+
+function openDrawer(kind, payload){
+  const d = document.getElementById('drawer');
+  const title = document.getElementById('drawerTitle');
+  const body = document.getElementById('drawerBody');
+
+  if(kind==='newOrder'){
+    title.textContent = 'Create procurement order (fake)';
+    body.innerHTML = `
+      <div class="form">
+        <div class="field">
+          <label>Customer / Work order</label>
+          <select>
+            <option>WO-5396 — Hyundai Elantra 2017</option>
+            <option>WO-5402 — Chevrolet Cobalt 2020</option>
+            <option>Internal stock</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Supplier</label>
+          <select>
+            <option>Exzap Warehouse</option>
+            <option>Partner A</option>
+            <option>Partner B</option>
+          </select>
+        </div>
+        <div class="field wide">
+          <label>Parts list</label>
+          <textarea placeholder="Example: OE 58101-3XA00, Brake pads set, qty 1"></textarea>
+        </div>
+        <div class="field">
+          <label>Payment</label>
+          <select>
+            <option>Invoice (net 7)</option>
+            <option>Card / instant</option>
+            <option>Credit line</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Delivery</label>
+          <select>
+            <option>Courier today</option>
+            <option>Pickup</option>
+            <option>Next day</option>
+          </select>
+        </div>
+        <div class="field wide" style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn secondary" onclick="closeDrawer()">Cancel</button>
+          <button class="btn" onclick="closeDrawer(); toast('<b>Order created</b> (demo). Next: pay or track in Orders.');">Create</button>
+        </div>
+      </div>
+    `;
+  }
+
+  if(kind==='invite'){
+    title.textContent = 'Invite staff member';
+    body.innerHTML = `
+      <div class="form">
+        <div class="field">
+          <label>Full name</label>
+          <input placeholder="e.g., Shakhzod A." />
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input placeholder="+998 90 ..." />
+        </div>
+        <div class="field">
+          <label>Role</label>
+          <select>
+            <option>Service advisor</option>
+            <option>Purchasing</option>
+            <option>Technician</option>
+            <option>Accountant</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Permissions</label>
+          <select>
+            <option>Limited</option>
+            <option>Standard</option>
+            <option>Admin</option>
+          </select>
+        </div>
+        <div class="field wide" style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn secondary" onclick="closeDrawer()">Cancel</button>
+          <button class="btn" onclick="closeDrawer(); toast('<b>Invite sent</b> (demo).');">Send invite</button>
+        </div>
+      </div>
+    `;
+  }
+
+  if(kind==='support'){
+    title.textContent = 'Support';
+    body.innerHTML = `
+      <div class="two">
+        <div class="card" style="box-shadow:none;border:1px solid var(--line)">
+          <div style="font-weight:950">Fast help</div>
+          <div class="sub">Message your manager or create a ticket.</div>
+          <div class="hr"></div>
+          <div class="form" style="grid-template-columns:1fr">
+            <div class="field">
+              <label>Topic</label>
+              <select>
+                <option>Order issue</option>
+                <option>Return / RMA</option>
+                <option>Pricing / wholesale</option>
+                <option>Account / contract</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Message</label>
+              <textarea placeholder="Describe the problem…"></textarea>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px">
+              <button class="btn secondary" onclick="closeDrawer()">Close</button>
+              <button class="btn" onclick="closeDrawer(); toast('Ticket created (demo).');">Send</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="box-shadow:none;border:1px solid var(--line)">
+          <div style="font-weight:950">Contacts</div>
+          <div class="sub">For urgent deliveries and payments.</div>
+          <div class="hr"></div>
+          <div class="note">
+            <b>Account manager:</b> +998 90 123 45 67<br/>
+            <b>Warehouse hotline:</b> +998 90 555 22 11<br/>
+            <b>Email:</b> support@exzap.uz (fake)<br/>
+            <div class="hr"></div>
+            <span class="link" onclick="toast('Opening Telegram… (demo)')">Open Telegram</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  d.style.display='flex';
+}
+
+function closeDrawer(){ document.getElementById('drawer').style.display='none'; }
+
+function render(){
+  const app = document.getElementById('app');
+  const r = state.route;
+  setActiveNav(r);
+
+  if(r==='dashboard'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Business cabinet</div>
+            <div class="sub">Procurement + work orders + staff + billing — everything for a repair shop.</div>
+          </div>
+          <div class="row">
+            <span class="chip active" onclick="toast('Filtered: This month (demo)')">This month</span>
+            <span class="chip" onclick="toast('Filtered: 90 days (demo)')">90 days</span>
+            <span class="chip" onclick="toast('Filtered: Year (demo)')">Year</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:14px">
+        <div class="card" style="grid-column: span 3">
+          <div class="kpi"><div class="label">Orders</div><div class="delta info">+8%</div></div>
+          <div class="val" style="margin-top:6px;font-size:26px;font-weight:950">12</div>
+          <div class="sub">Procurement orders placed</div>
+        </div>
+        <div class="card" style="grid-column: span 3">
+          <div class="kpi"><div class="label">Outstanding invoices</div><div class="delta warn">3</div></div>
+          <div class="val" style="margin-top:6px;font-size:26px;font-weight:950">${fmtUZS(6840000)}</div>
+          <div class="sub">Due in 7 days (net terms)</div>
+        </div>
+        <div class="card" style="grid-column: span 3">
+          <div class="kpi"><div class="label">Average margin</div><div class="delta ok">+2.1pp</div></div>
+          <div class="val" style="margin-top:6px;font-size:26px;font-weight:950">19.4%</div>
+          <div class="sub">On parts (quotes → orders)</div>
+        </div>
+        <div class="card" style="grid-column: span 3">
+          <div class="kpi"><div class="label">Open work orders</div><div class="delta info">7</div></div>
+          <div class="val" style="margin-top:6px;font-size:26px;font-weight:950">7</div>
+          <div class="sub">Jobs in progress / approval</div>
+        </div>
+
+        <div class="card" style="grid-column: span 7">
+          <div class="split">
+            <div>
+              <div style="font-weight:950">Recent procurement orders</div>
+              <div class="sub">Track deliveries and payments (demo).</div>
+            </div>
+            <div class="link" onclick="location.hash='#orders'">Open Orders →</div>
+          </div>
+          <table>
+            <thead><tr><th>Order</th><th>Date</th><th>Supplier</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody>
+              ${state.orders.slice(0,4).map(o=>`
+                <tr>
+                  <td><span class="link" onclick="openOrder('${o.id}')">${o.id}</span></td>
+                  <td>${o.date}</td>
+                  <td>${o.supplier}</td>
+                  <td>${fmtUZS(o.total)}</td>
+                  <td>${statusPill(o.status, o.s)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="grid-column: span 5">
+          <div class="split">
+            <div>
+              <div style="font-weight:950">Work orders needing action</div>
+              <div class="sub">Approve estimates + order parts quickly.</div>
+            </div>
+            <div class="link" onclick="location.hash='#workorders'">Open Work Orders →</div>
+          </div>
+          <table>
+            <thead><tr><th>WO</th><th>Customer</th><th>Vehicle</th><th>Stage</th></tr></thead>
+            <tbody>
+              ${state.workorders.slice(0,4).map(w=>`
+                <tr>
+                  <td><span class="link" onclick="openWO('${w.id}')">${w.id}</span></td>
+                  <td>${w.customer}</td>
+                  <td>${w.vehicle}</td>
+                  <td>${statusPill(w.stage, w.s)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="grid-column: span 12">
+          <div class="split">
+            <div>
+              <div style="font-weight:950">Quick actions</div>
+              <div class="sub">Designed for repair shops (B2B).</div>
+            </div>
+          </div>
+          <div class="cta" style="margin-top:10px">
+            <button class="btn" onclick="openDrawer('newOrder')">Create order</button>
+            <button class="btn ghost" onclick="location.hash='#quotes'">Request quote</button>
+            <button class="btn ghost" onclick="location.hash='#billing'">Pay invoices</button>
+            <button class="btn ghost" onclick="location.hash='#team'">Manage team</button>
+            <button class="btn secondary" onclick="toast('Connected to accounting (demo).')">Export to бухгалтерия</button>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='orders'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Orders</div>
+            <div class="sub">B2B procurement orders for your shop (not individual customer orders).</div>
+          </div>
+          <div class="cta">
+            <button class="btn secondary" onclick="toast('Filter opened (demo)')">Filters</button>
+            <button class="btn" onclick="openDrawer('newOrder')">New order</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="row">
+          <span class="chip active" onclick="toast('Showing: All')">All</span>
+          <span class="chip" onclick="toast('Showing: Awaiting payment')">Awaiting payment</span>
+          <span class="chip" onclick="toast('Showing: Packed')">Packed</span>
+          <span class="chip" onclick="toast('Showing: Delivered')">Delivered</span>
+        </div>
+        <table>
+          <thead><tr><th>Order</th><th>Date</th><th>Supplier</th><th>Total</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${state.orders.map(o=>`
+              <tr>
+                <td><span class="link" onclick="openOrder('${o.id}')">${o.id}</span></td>
+                <td>${o.date}</td>
+                <td>${o.supplier}</td>
+                <td>${fmtUZS(o.total)}</td>
+                <td>${statusPill(o.status,o.s)}</td>
+                <td><span class="link" onclick="toast('Downloaded invoice for ${o.id} (demo)')">Invoice</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='quotes'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Quotes</div>
+            <div class="sub">Create a quick parts request (OE/VIN) → compare suppliers → convert to order.</div>
+          </div>
+          <div class="cta">
+            <button class="btn" onclick="openQuote()">New quote</button>
+          </div>
+        </div>
+
+        <table>
+          <thead><tr><th>Quote</th><th>Date</th><th>Items</th><th>Best supplier</th><th>ETA</th><th>Margin</th><th></th></tr></thead>
+          <tbody>
+            ${state.quotes.map(q=>`
+              <tr>
+                <td><span class="link" onclick="openQuote('${q.id}')">${q.id}</span></td>
+                <td>${q.date}</td>
+                <td>${q.items}</td>
+                <td>${q.best}</td>
+                <td>${q.eta}</td>
+                <td><span class="status s-ok">${q.margin}</span></td>
+                <td><span class="link" onclick="toast('Converted ${q.id} to order (demo)')">Convert →</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='returns'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Returns (RMA)</div>
+            <div class="sub">Manage returns for wrong/defective parts as a business account.</div>
+          </div>
+          <div class="cta">
+            <button class="btn" onclick="openRMA()">Create return</button>
+          </div>
+        </div>
+
+        <table>
+          <thead><tr><th>RMA</th><th>Date</th><th>Order</th><th>Items</th><th>Reason</th><th>Status</th></tr></thead>
+          <tbody>
+            ${state.returns.map(r=>`
+              <tr>
+                <td><span class="link" onclick="openRMA('${r.id}')">${r.id}</span></td>
+                <td>${r.date}</td>
+                <td>${r.order}</td>
+                <td>${r.items}</td>
+                <td>${r.reason}</td>
+                <td>${statusPill(r.status, r.s)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='clients'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Customers</div>
+            <div class="sub">Your end customers (the people who bring cars). Separate from your B2B purchasing profile.</div>
+          </div>
+          <div class="cta">
+            <button class="btn" onclick="toast('Customer added (demo)')">Add customer</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="two">
+          <div class="card" style="box-shadow:none">
+            <div style="font-weight:950">Customer list</div>
+            <div class="sub">Search by name/phone (demo).</div>
+            <table>
+              <thead><tr><th>Name</th><th>Phone</th><th>Vehicles</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Akmal R.</td><td>+998 90 111 22 33</td><td>1</td><td><span class="link" onclick="toast('Opened customer profile (demo)')">Open</span></td></tr>
+                <tr><td>Dilnoza S.</td><td>+998 90 444 55 66</td><td>2</td><td><span class="link" onclick="toast('Opened customer profile (demo)')">Open</span></td></tr>
+                <tr><td>Sardor K.</td><td>+998 90 777 88 99</td><td>1</td><td><span class="link" onclick="toast('Opened customer profile (demo)')">Open</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <div style="font-weight:950">Quick intake</div>
+            <div class="sub">Create a work order from intake (demo).</div>
+            <div class="form" style="grid-template-columns:1fr">
+              <div class="field">
+                <label>Customer phone</label>
+                <input placeholder="+998…" />
+              </div>
+              <div class="field">
+                <label>Vehicle</label>
+                <input placeholder="VIN / Model / Plate" />
+              </div>
+              <div class="field">
+                <label>Concern</label>
+                <textarea placeholder="Noise when braking…"></textarea>
+              </div>
+              <div style="display:flex;justify-content:flex-end;gap:10px">
+                <button class="btn secondary" onclick="toast('Saved as draft (demo)')">Save draft</button>
+                <button class="btn" onclick="toast('Work order created (demo)')">Create WO</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='workorders'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Work Orders</div>
+            <div class="sub">Operational dashboard for the shop. From here you request quotes and order parts.</div>
+          </div>
+          <div class="cta">
+            <button class="btn secondary" onclick="toast('Kanban view (demo)')">Kanban</button>
+            <button class="btn" onclick="toast('New work order (demo)')">New WO</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>WO</th><th>Customer</th><th>Vehicle</th><th>Stage</th><th>Estimate</th><th></th></tr></thead>
+          <tbody>
+            ${state.workorders.map(w=>`
+              <tr>
+                <td><span class="link" onclick="openWO('${w.id}')">${w.id}</span></td>
+                <td>${w.customer}</td>
+                <td>${w.vehicle}</td>
+                <td>${statusPill(w.stage,w.s)}</td>
+                <td>${fmtUZS(w.est)}</td>
+                <td><span class="link" onclick="toast('Requested quote for ${w.id} (demo)')">Request quote</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='fleet'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Vehicles (Garage)</div>
+            <div class="sub">Store customer vehicles + VINs to speed up parts search and quoting.</div>
+          </div>
+          <div class="cta">
+            <button class="btn" onclick="toast('Vehicle added (demo)')">Add vehicle</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="two">
+          <div class="card" style="box-shadow:none">
+            <div style="font-weight:950">Saved vehicles</div>
+            <table>
+              <thead><tr><th>Vehicle</th><th>VIN</th><th>Mileage</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Chevrolet Cobalt 2020</td><td>XUF•••••9031</td><td>68,200</td><td><span class="link" onclick="toast('Opened vehicle card (demo)')">Open</span></td></tr>
+                <tr><td>Toyota Camry 2018</td><td>JT•••••4A11</td><td>112,900</td><td><span class="link" onclick="toast('Opened vehicle card (demo)')">Open</span></td></tr>
+                <tr><td>Hyundai Elantra 2017</td><td>KM•••••1122</td><td>95,400</td><td><span class="link" onclick="toast('Opened vehicle card (demo)')">Open</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <div style="font-weight:950">VIN lookup (demo)</div>
+            <div class="sub">Fake lookup shows “matching parts categories”.</div>
+            <div class="form" style="grid-template-columns:1fr">
+              <div class="field">
+                <label>VIN</label>
+                <input placeholder="Enter VIN" />
+              </div>
+              <div class="field">
+                <label>Result</label>
+                <div class="row">
+                  <span class="chip">Brakes</span><span class="chip">Filters</span><span class="chip">Suspension</span><span class="chip">Fluids</span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;gap:10px">
+                <button class="btn secondary" onclick="toast('Saved VIN (demo)')">Save</button>
+                <button class="btn" onclick="toast('Searching parts… (demo)')">Search parts</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='team'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Team</div>
+            <div class="sub">Multiple employees under one business account. Roles & permissions.</div>
+          </div>
+          <div class="cta">
+            <button class="btn" onclick="openDrawer('invite')">Invite staff</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Access</th><th></th></tr></thead>
+          <tbody>
+            ${state.team.map(p=>`
+              <tr>
+                <td>${p.name}</td>
+                <td>${p.role}</td>
+                <td>${p.phone}</td>
+                <td><span class="status s-info">${p.perm}</span></td>
+                <td><span class="link" onclick="toast('Edited permissions (demo)')">Edit</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='billing'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Billing</div>
+            <div class="sub">Business invoices, net terms, and credit line usage.</div>
+          </div>
+          <div class="cta">
+            <button class="btn secondary" onclick="toast('Statement exported (demo)')">Export statement</button>
+            <button class="btn" onclick="toast('Invoice paid (demo)')">Pay now</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="grid">
+          <div class="card" style="grid-column:span 4; box-shadow:none">
+            <div class="kpi"><div class="label">Credit line</div><div class="delta info">Active</div></div>
+            <div class="val" style="margin-top:6px;font-size:24px;font-weight:950">${fmtUZS(20000000)}</div>
+            <div class="sub">Limit</div>
+          </div>
+          <div class="card" style="grid-column:span 4; box-shadow:none">
+            <div class="kpi"><div class="label">Used</div><div class="delta warn">34%</div></div>
+            <div class="val" style="margin-top:6px;font-size:24px;font-weight:950">${fmtUZS(6800000)}</div>
+            <div class="sub">Current exposure</div>
+          </div>
+          <div class="card" style="grid-column:span 4; box-shadow:none">
+            <div class="kpi"><div class="label">Next due</div><div class="delta warn">Jan 27</div></div>
+            <div class="val" style="margin-top:6px;font-size:24px;font-weight:950">${fmtUZS(2100000)}</div>
+            <div class="sub">Net 7 invoice</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div style="font-weight:950">Invoices</div>
+        <table>
+          <thead><tr><th>Invoice</th><th>Period</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>INV-11821</td><td>Jan 2026</td><td>${fmtUZS(2100000)}</td><td>${statusPill('Due','warn')}</td><td><span class="link" onclick="toast('Downloaded PDF (demo)')">PDF</span></td></tr>
+            <tr><td>INV-11752</td><td>Dec 2025</td><td>${fmtUZS(4740000)}</td><td>${statusPill('Paid','ok')}</td><td><span class="link" onclick="toast('Downloaded PDF (demo)')">PDF</span></td></tr>
+            <tr><td>INV-11690</td><td>Nov 2025</td><td>${fmtUZS(1680000)}</td><td>${statusPill('Paid','ok')}</td><td><span class="link" onclick="toast('Downloaded PDF (demo)')">PDF</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='bonus'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Bonus / Terms</div>
+            <div class="sub">Loyalty points + wholesale tier + special pricing for repair shops.</div>
+          </div>
+          <div class="cta">
+            <button class="btn secondary" onclick="toast('Terms updated (demo)')">Request better terms</button>
+            <button class="btn" onclick="toast('Applied bonus to next invoice (demo)')">Apply bonus</button>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px">
+          <div class="card" style="grid-column:span 4; box-shadow:none">
+            <div class="kpi"><div class="label">Bonus balance</div><div class="delta ok">+1,240</div></div>
+            <div class="val" style="margin-top:6px;font-size:24px;font-weight:950">8,420</div>
+            <div class="sub">points</div>
+          </div>
+          <div class="card" style="grid-column:span 4; box-shadow:none">
+            <div class="kpi"><div class="label">Wholesale tier</div><div class="delta info">Tier B</div></div>
+            <div class="val" style="margin-top:6px;font-size:24px;font-weight:950">-7%</div>
+            <div class="sub">average discount</div>
+          </div>
+          <div class="card" style="grid-column:span 4; box-shadow:none">
+            <div class="kpi"><div class="label">Payment terms</div><div class="delta info">Net 7</div></div>
+            <div class="val" style="margin-top:6px;font-size:24px;font-weight:950">7 days</div>
+            <div class="sub">after invoice date</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="two">
+          <div class="card" style="box-shadow:none">
+            <div style="font-weight:950">How to earn</div>
+            <div class="sub">Orders + fast payments + low return rate.</div>
+            <ul class="note">
+              <li>+1 point for every 10,000 UZS of paid orders</li>
+              <li>Extra points for same-day payments (demo rule)</li>
+              <li>Tier upgrades based on quarterly turnover</li>
+            </ul>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <div style="font-weight:950">Bonus history</div>
+            <table>
+              <thead><tr><th>Date</th><th>Action</th><th>Points</th></tr></thead>
+              <tbody>
+                <tr><td>Jan 19, 2026</td><td>Order PO-22193 paid</td><td><span class="status s-ok">+340</span></td></tr>
+                <tr><td>Jan 17, 2026</td><td>Quote Q-8797 converted</td><td><span class="status s-ok">+120</span></td></tr>
+                <tr><td>Jan 10, 2026</td><td>Applied to invoice</td><td><span class="status s-warn">-500</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(r==='settings'){
+    app.innerHTML = `
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="h1">Settings</div>
+            <div class="sub">Business profile: legal info, bank реквизиты, notifications, integrations.</div>
+          </div>
+          <div class="cta">
+            <button class="btn secondary" onclick="toast('Saved (demo)')">Save</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+
+        <div class="form">
+          <div class="field">
+            <label>Company name</label>
+            <input value="GARAGE MASTER LLC" />
+          </div>
+          <div class="field">
+            <label>INN</label>
+            <input value="3090•••••" />
+          </div>
+          <div class="field">
+            <label>Primary phone</label>
+            <input value="+998 90 000 00 01" />
+          </div>
+          <div class="field">
+            <label>Address</label>
+            <input value="Tashkent, Chilonzor (fake)" />
+          </div>
+          <div class="field wide">
+            <label>Bank details</label>
+            <textarea>Account: 2020•••••••• (fake)
+Bank: NBU (fake)
+MFO: 00000</textarea>
+          </div>
+          <div class="field">
+            <label>Notifications</label>
+            <select>
+              <option>SMS + Telegram</option>
+              <option>Telegram only</option>
+              <option>Email only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Integration</label>
+            <select>
+              <option>1C / Accounting export</option>
+              <option>API access</option>
+              <option>None</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  app.innerHTML = `<div class="card"><div class="h1">Not found</div><div class="sub">Use the left menu.</div></div>`;
+}
+
+function openOrder(id){
+  const o = state.orders.find(x=>x.id===id);
+  openDrawer('support'); // reuse panel container
+  // replace with order view
+  document.getElementById('drawerTitle').textContent = `Order ${id}`;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="two">
+      <div class="card" style="box-shadow:none;border:1px solid var(--line)">
+        <div style="font-weight:950">Summary</div>
+        <div class="sub">${o.date} • ${o.supplier}</div>
+        <div class="hr"></div>
+        <div class="row">
+          ${statusPill(o.status, o.s)}
+          <span class="status s-info">Delivery: Courier</span>
+          <span class="status s-info">Payment: Invoice</span>
+        </div>
+        <div class="hr"></div>
+        <div class="kpi"><div class="label">Total</div><div class="val" style="font-size:22px">${fmtUZS(o.total)}</div></div>
+        <div class="sub">Includes shop discount Tier B.</div>
+        <div class="hr"></div>
+        <div class="cta">
+          <button class="btn" onclick="toast('Tracking opened (demo)')">Track</button>
+          <button class="btn ghost" onclick="toast('Invoice downloaded (demo)')">Invoice PDF</button>
+          <button class="btn secondary" onclick="toast('Created return (demo)')">Return / RMA</button>
+        </div>
+      </div>
+      <div class="card" style="box-shadow:none;border:1px solid var(--line)">
+        <div style="font-weight:950">Items (demo)</div>
+        <table>
+          <thead><tr><th>Part</th><th>Qty</th><th>Price</th></tr></thead>
+          <tbody>
+            <tr><td>Oil filter (OE 26300-35503)</td><td>2</td><td>${fmtUZS(180000)}</td></tr>
+            <tr><td>Brake pads set (OE 58101-3XA00)</td><td>1</td><td>${fmtUZS(620000)}</td></tr>
+            <tr><td>Brake fluid DOT4</td><td>2</td><td>${fmtUZS(140000)}</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:10px">For presentation: highlight how repair shops order parts per work order.</div>
+      </div>
+    </div>
+  `;
+}
+
+function openWO(id){
+  const w = state.workorders.find(x=>x.id===id);
+  openDrawer('support');
+  document.getElementById('drawerTitle').textContent = `Work Order ${id}`;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="two">
+      <div class="card" style="box-shadow:none;border:1px solid var(--line)">
+        <div style="font-weight:950">${w.customer}</div>
+        <div class="sub">${w.vehicle}</div>
+        <div class="hr"></div>
+        <div class="row">
+          ${statusPill(w.stage, w.s)}
+          <span class="status s-info">Priority: Normal</span>
+        </div>
+        <div class="hr"></div>
+        <div class="kpi"><div class="label">Estimated parts</div><div class="val" style="font-size:22px">${fmtUZS(w.est)}</div></div>
+        <div class="sub">Click to request a quote or order parts immediately.</div>
+        <div class="hr"></div>
+        <div class="cta">
+          <button class="btn" onclick="closeDrawer(); location.hash='#quotes'; toast('Quote prefilled for ${id} (demo)')">Request quote</button>
+          <button class="btn ghost" onclick="closeDrawer(); openDrawer('newOrder'); toast('Order linked to ${id} (demo)')">Order parts</button>
+          <button class="btn secondary" onclick="toast('Customer notified (demo)')">Notify customer</button>
+        </div>
+      </div>
+      <div class="card" style="box-shadow:none;border:1px solid var(--line)">
+        <div style="font-weight:950">Parts checklist (demo)</div>
+        <table>
+          <thead><tr><th>Item</th><th>Need</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td>Brake pads (front)</td><td>1</td><td><span class="status s-warn">Awaiting</span></td></tr>
+            <tr><td>Brake discs</td><td>2</td><td><span class="status s-info">Quoted</span></td></tr>
+            <tr><td>Fluid DOT4</td><td>2</td><td><span class="status s-ok">In stock</span></td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:10px">This view is for the <b>repair shop business</b> to coordinate jobs + purchasing.</div>
+      </div>
+    </div>
+  `;
+}
+
+function openQuote(id){
+  openDrawer('support');
+  document.getElementById('drawerTitle').textContent = id ? `Quote ${id}` : 'New quote';
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="form">
+      <div class="field">
+        <label>Linked work order</label>
+        <select>
+          <option>WO-5402</option><option>WO-5396</option><option>None</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>VIN / Vehicle</label>
+        <input placeholder="VIN or model" value="KM•••••1122 (Hyundai Elantra 2017)" />
+      </div>
+      <div class="field wide">
+        <label>Parts request</label>
+        <textarea placeholder="OE / brand / qty">OE 58101-3XA00 — brake pads — qty 1
+OE 26300-35503 — oil filter — qty 2</textarea>
+      </div>
+      <div class="field">
+        <label>Target margin</label>
+        <select><option>18%</option><option>22%</option><option>15%</option></select>
+      </div>
+      <div class="field">
+        <label>Delivery preference</label>
+        <select><option>Today</option><option>Next day</option><option>Cheapest</option></select>
+      </div>
+      <div class="field wide" style="display:flex;justify-content:flex-end;gap:10px">
+        <button class="btn secondary" onclick="closeDrawer()">Cancel</button>
+        <button class="btn" onclick="closeDrawer(); toast('<b>Quote sent</b> to suppliers (demo).')">Send</button>
+      </div>
+    </div>
+  `;
+}
+
+function openRMA(id){
+  openDrawer('support');
+  document.getElementById('drawerTitle').textContent = id ? `Return ${id}` : 'Create return (RMA)';
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="form">
+      <div class="field">
+        <label>Related order</label>
+        <select><option>PO-22144</option><option>PO-22161</option></select>
+      </div>
+      <div class="field">
+        <label>Reason</label>
+        <select><option>Wrong part</option><option>Defective</option><option>Excess</option></select>
+      </div>
+      <div class="field wide">
+        <label>Details</label>
+        <textarea>Part does not match the vehicle. Request exchange.</textarea>
+      </div>
+      <div class="field wide" style="display:flex;justify-content:flex-end;gap:10px">
+        <button class="btn secondary" onclick="closeDrawer()">Cancel</button>
+        <button class="btn" onclick="closeDrawer(); toast('<b>RMA created</b> (demo).')">Create</button>
+      </div>
+    </div>
+  `;
+}
+
+function onRoute(){
+  const h = (location.hash||'#dashboard').replace('#','');
+  state.route = h || 'dashboard';
+  render();
+}
+window.addEventListener('hashchange', onRoute);
+
+document.getElementById('globalSearch').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){
+    toast('<b>Search</b>: '+ e.target.value + ' (demo)');
+    e.target.value='';
+  }
+});
+
+onRoute();
+</script>
+</body>
+</html>
